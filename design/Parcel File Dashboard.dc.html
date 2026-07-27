@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-13274f94-c449-44ec-9a26-21414091bf5b/styles.css">
+<script src="_ds/modernist-13274f94-c449-44ec-9a26-21414091bf5b/_ds_bundle.js"></script>
+<style>
+html,body{margin:0}
+@keyframes pfd-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</helmet>
+<div style="{{ rootStyle }}" onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDrop }}">
+
+<div class="nav" style="flex:none">
+  <span class="nav-brand">Parcel</span>
+  <div style="position:relative;width:min(420px,38vw)">
+    <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:color-mix(in srgb, var(--color-text) 50%, transparent);display:flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+    <input class="input" style="padding-left:32px" type="text" placeholder="Search files and folders" value="{{ search }}" onChange="{{ onSearchChange }}"/>
+  </div>
+  <button class="btn btn-primary" onClick="{{ triggerUpload }}" style="margin-left:auto"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4"></path><path d="M6 10l6-6 6 6"></path><path d="M4 20h16"></path></svg><span>Upload files</span></button>
+  <button class="btn btn-secondary btn-icon" onClick="{{ toggleDarkMode }}" title="Toggle dark mode">
+    <sc-if value="{{ darkMode }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></sc-if>
+    <sc-if value="{{ notDarkMode }}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"></path></svg></sc-if>
+  </button>
+  <div style="width:32px;height:32px;flex:none;background:var(--color-accent-100);color:var(--color-accent-700);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:12px">AM</div>
+</div>
+
+<div style="display:flex;flex:1;min-height:0">
+
+  <div style="width:232px;flex:none;border-right:2px solid var(--color-divider);padding:var(--space-4);display:flex;flex-direction:column;gap:var(--space-1);overflow-y:auto">
+    <button class="btn" style="justify-content:flex-start;padding:8px 10px;background:{{ navBg.all }};color:{{ navFg.all }};font-weight:800;width:100%" onClick="{{ selectAll }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8"></rect><rect x="13" y="3" width="8" height="8"></rect><rect x="3" y="13" width="8" height="8"></rect><rect x="13" y="13" width="8" height="8"></rect></svg><span>All Files</span></button>
+    <button class="btn" style="justify-content:flex-start;padding:8px 10px;background:{{ navBg.recent }};color:{{ navFg.recent }};font-weight:800;width:100%" onClick="{{ selectRecent }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg><span>Recent</span></button>
+    <button class="btn" style="justify-content:flex-start;padding:8px 10px;background:{{ navBg.starred }};color:{{ navFg.starred }};font-weight:800;width:100%" onClick="{{ selectStarred }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.63 22 9.24 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.24 8.91 8.63 12 2"></polygon></svg><span>Starred</span></button>
+
+    <hr class="hr" style="margin:var(--space-3) 0"/>
+    <h6 style="margin:0 0 var(--space-2) 2px;color:color-mix(in srgb, var(--color-text) 55%, transparent)">Folders</h6>
+    <sc-for list="{{ sidebarFolders }}" as="folder" hint-placeholder-count="4">
+      <button class="btn" style="justify-content:flex-start;padding:8px 10px;background:{{ folder.bg }};color:{{ folder.fg }};font-weight:800;width:100%" onClick="{{ folder.select }}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6a1 1 0 011-1h5l2 2h9a1 1 0 011 1v11a1 1 0 01-1 1H4a1 1 0 01-1-1z"></path></svg><span style="flex:1;text-align:left">{{ folder.name }}</span><span style="font-weight:400;font-size:11px;opacity:0.6">{{ folder.count }}</span>
+      </button>
+    </sc-for>
+
+    <div style="flex:1"></div>
+    <div style="padding:0 2px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:color-mix(in srgb, var(--color-text) 55%, transparent);margin-bottom:6px">
+        <span>6.8 GB of 10 GB</span><span>68%</span>
+      </div>
+      <div style="height:6px;background:var(--color-neutral-200);width:100%">
+        <div style="height:100%;width:68%;background:var(--color-accent)"></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex:1;min-width:0;overflow-y:auto;position:relative;padding:var(--space-6)">
+
+    <sc-if value="{{ dragOver }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:12px;border:2px dashed var(--color-accent);background:color-mix(in srgb, var(--color-accent) 6%, var(--color-bg));display:flex;align-items:center;justify-content:center;flex-direction:column;gap:var(--space-2);z-index:5;pointer-events:none">
+        <span style="color:var(--color-accent);display:flex"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4"></path><path d="M6 10l6-6 6 6"></path><path d="M4 20h16"></path></svg></span>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:18px;color:var(--color-accent-700)">Drop to upload</div>
+      </div>
+    </sc-if>
+
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:var(--space-4);gap:var(--space-4)">
+      <h3 style="margin:0">{{ headerTitle }}</h3>
+      <div class="seg">
+        <label class="seg-opt"><input type="radio" name="view" checked="{{ isGrid }}" onChange="{{ setGrid }}"/><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8"></rect><rect x="13" y="3" width="8" height="8"></rect><rect x="3" y="13" width="8" height="8"></rect><rect x="13" y="13" width="8" height="8"></rect></svg><span>Grid</span></label>
+        <label class="seg-opt"><input type="radio" name="view" checked="{{ isList }}" onChange="{{ setList }}"/><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="18" x2="20" y2="18"></line></svg><span>List</span></label>
+      </div>
+    </div>
+
+    <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:var(--space-3);padding:80px 0;color:color-mix(in srgb, var(--color-text) 55%, transparent)">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 6a1 1 0 011-1h5l2 2h9a1 1 0 011 1v11a1 1 0 01-1 1H4a1 1 0 01-1-1z"></path></svg>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:17px;color:var(--color-text)">No files here</div>
+        <div style="font-size:13px">Drag files anywhere on this page, or use Upload files.</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showGrid }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(210px, 1fr));gap:var(--space-4)">
+        <sc-for list="{{ displayItems }}" as="item" hint-placeholder-count="6">
+
+          <sc-if value="{{ item.isFolder }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-sm" style="cursor:pointer" onClick="{{ item.open }}">
+              <div style="height:64px;display:flex;align-items:center;color:var(--color-accent)"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6a1 1 0 011-1h5l2 2h9a1 1 0 011 1v11a1 1 0 01-1 1H4a1 1 0 01-1-1z"></path></svg></div>
+              <div class="card-title">{{ item.name }}</div>
+              <div class="card-meta">{{ item.count }} items</div>
+              <div style="display:flex;gap:4px;margin-top:var(--space-1)" onClick="{{ stop }}">
+                <button class="btn btn-ghost btn-icon" onClick="{{ item.share }}" title="Share"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"></line><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"></line></svg></button>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ item.isFile }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-sm">
+              <div style="height:64px;display:flex;align-items:center">
+                <div style="width:44px;height:44px;flex:none;border:1px solid var(--color-divider);background:var(--color-surface);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:11px;color:var(--color-accent-700)">{{ item.ext }}</div>
+              </div>
+              <div class="card-title" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ item.name }}</div>
+              <sc-if value="{{ item.uploading }}" hint-placeholder-val="{{ false }}">
+                <div style="height:4px;background:var(--color-neutral-200);width:100%"><div style="height:100%;background:var(--color-accent);width:{{ item.progressPct }}"></div></div>
+                <div class="card-meta">Uploading… {{ item.progress }}%</div>
+              </sc-if>
+              <sc-if value="{{ item.notUploading }}" hint-placeholder-val="{{ true }}">
+                <div class="card-meta">{{ item.size }} · {{ item.modified }}</div>
+                <div style="display:flex;gap:4px;margin-top:var(--space-1)">
+                  <button class="btn btn-ghost btn-icon" onClick="{{ item.toggleStar }}" title="Star">
+                    <sc-if value="{{ item.starred }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1"><polygon points="12 2 15.09 8.63 22 9.24 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.24 8.91 8.63 12 2"></polygon></svg></sc-if>
+                    <sc-if value="{{ item.notStarred }}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.63 22 9.24 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.24 8.91 8.63 12 2"></polygon></svg></sc-if>
+                  </button>
+                  <button class="btn btn-ghost btn-icon" onClick="{{ item.share }}" title="Share"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"></line><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"></line></svg></button>
+                  <button class="btn btn-ghost btn-icon" onClick="{{ item.download }}" title="Download"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12"></path><path d="M6 12l6 6 6-6"></path><path d="M4 20h16"></path></svg></button>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showList }}" hint-placeholder-val="{{ false }}">
+      <table class="table">
+        <thead><tr><th>Name</th><th>Kind</th><th>Size</th><th>Modified</th><th></th></tr></thead>
+        <tbody>
+          <sc-for list="{{ displayItems }}" as="item" hint-placeholder-count="6">
+            <tr style="cursor:{{ item.rowCursor }}" onClick="{{ item.rowClick }}">
+              <td>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <sc-if value="{{ item.isFolder }}" hint-placeholder-val="{{ false }}"><span style="color:var(--color-accent);display:flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6a1 1 0 011-1h5l2 2h9a1 1 0 011 1v11a1 1 0 01-1 1H4a1 1 0 01-1-1z"></path></svg></span></sc-if>
+                  <sc-if value="{{ item.isFile }}" hint-placeholder-val="{{ true }}"><span style="width:28px;height:28px;flex:none;border:1px solid var(--color-divider);background:var(--color-surface);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:9px;color:var(--color-accent-700)">{{ item.ext }}</span></sc-if>
+                  <span>{{ item.name }}</span>
+                </div>
+              </td>
+              <td>{{ item.kindLabel }}</td>
+              <td>{{ item.sizeOrCount }}</td>
+              <td>{{ item.modified }}</td>
+              <td>
+                <div style="display:flex;gap:2px;justify-content:flex-end" onClick="{{ stop }}">
+                  <sc-if value="{{ item.isFile }}" hint-placeholder-val="{{ true }}">
+                    <button class="btn btn-ghost btn-icon" onClick="{{ item.toggleStar }}" title="Star">
+                      <sc-if value="{{ item.starred }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1"><polygon points="12 2 15.09 8.63 22 9.24 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.24 8.91 8.63 12 2"></polygon></svg></sc-if>
+                      <sc-if value="{{ item.notStarred }}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.63 22 9.24 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.24 8.91 8.63 12 2"></polygon></svg></sc-if>
+                    </button>
+                    <button class="btn btn-ghost btn-icon" onClick="{{ item.download }}" title="Download"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12"></path><path d="M6 12l6 6 6-6"></path><path d="M4 20h16"></path></svg></button>
+                  </sc-if>
+                  <button class="btn btn-ghost btn-icon" onClick="{{ item.share }}" title="Share"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"></line><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"></line></svg></button>
+                </div>
+              </td>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+    </sc-if>
+
+  </div>
+</div>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:24px;right:24px;background:var(--color-text);color:var(--color-bg);padding:12px 18px;font-size:13px;font-weight:600;box-shadow:var(--shadow-lg);animation:pfd-toast-in .18s ease-out;z-index:20">{{ toast }}</div>
+</sc-if>
+
+<sc-if value="{{ shareItem }}" hint-placeholder-val="{{ false }}">
+  <div class="dialog-backdrop" onClick="{{ closeShare }}">
+    <div class="dialog" onClick="{{ stop }}">
+      <div class="dialog-title">Share "{{ shareItem.name }}"</div>
+      <div class="dialog-body">Anyone with this link can access it.</div>
+      <div style="display:flex;gap:8px">
+        <input class="input" readonly="{{ true }}" value="{{ shareLink }}"/>
+        <button class="btn btn-secondary" onClick="{{ copyLink }}" style="flex:none">{{ copyLabel }}</button>
+      </div>
+      <div style="display:flex;gap:var(--space-4);margin-top:4px">
+        <label class="radio"><input type="radio" name="perm" checked="{{ permIsView }}" onChange="{{ setPermView }}"/><span class="dot"></span>Can view</label>
+        <label class="radio"><input type="radio" name="perm" checked="{{ permIsEdit }}" onChange="{{ setPermEdit }}"/><span class="dot"></span>Can edit</label>
+      </div>
+      <div class="dialog-actions">
+        <button class="btn btn-primary" onClick="{{ closeShare }}">Done</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const FOLDERS = [
+  {id:'design', name:'Design Assets'},
+  {id:'clients', name:'Client Docs'},
+  {id:'photos', name:'Photos'},
+  {id:'invoices', name:'Invoices'}
+];
+
+function mkFile(id, name, sizeBytes, folderId, starred, daysAgo){
+  return {id, name, size: sizeBytes, folderId, starred, uploading:false, progress:100, ts: Date.now() - daysAgo*86400000};
+}
+
+const INITIAL_FILES = [
+  mkFile('f1','Q3 Roadmap.pdf', 1200000, null, true, 1),
+  mkFile('f2','Team Photo.jpg', 3400000, null, false, 2),
+  mkFile('f3','Budget Sheet.xlsx', 640000, null, true, 5),
+  mkFile('f4','Notes.txt', 12000, null, false, 10),
+  mkFile('f5','Logo Final.png', 890000, 'design', true, 1),
+  mkFile('f6','Icon Set.zip', 2100000, 'design', false, 3),
+  mkFile('f7','Brand Guide.pdf', 4300000, 'design', false, 6),
+  mkFile('f8','Acme Contract.pdf', 560000, 'clients', true, 2),
+  mkFile('f9','Invoice Template.docx', 88000, 'clients', false, 8),
+  mkFile('f10','Vacation.jpg', 5200000, 'photos', false, 4),
+  mkFile('f11','Family Dinner.jpg', 4800000, 'photos', true, 7),
+  mkFile('f12','Sunset.jpg', 3100000, 'photos', false, 12),
+  mkFile('f13','March Invoice.pdf', 210000, 'invoices', false, 15),
+  mkFile('f14','April Invoice.pdf', 230000, 'invoices', false, 1)
+];
+
+class Component extends DCLogic {
+  state = {
+    section: 'all',
+    activeFolder: null,
+    view: 'grid',
+    search: '',
+    shareItem: null,
+    sharePerm: 'view',
+    copyFeedback: false,
+    dragOver: false,
+    darkMode: false,
+    toast: null,
+    files: INITIAL_FILES,
+    nextId: 15
+  };
+
+  componentWillUnmount(){ this._timers && this._timers.forEach(clearInterval); }
+
+  ext(name){ const p = name.split('.'); return p.length>1 ? p.pop().toUpperCase().slice(0,4) : 'FILE'; }
+  fmtSize(bytes){ return bytes>1e6 ? (bytes/1e6).toFixed(1)+' MB' : (bytes/1e3).toFixed(0)+' KB'; }
+  fmtDate(ts){ return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+
+  showToast(msg){
+    this.setState({toast: msg});
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(()=> this.setState({toast:null}), 2200);
+  }
+
+  toggleDarkMode = () => this.setState(s => ({darkMode: !s.darkMode}));
+
+  selectAll = () => this.setState({section:'all', activeFolder:null});
+  selectRecent = () => this.setState({section:'recent', activeFolder:null});
+  selectStarred = () => this.setState({section:'starred', activeFolder:null});
+  openFolder = (id) => this.setState({section:'folder', activeFolder:id});
+
+  setGrid = () => this.setState({view:'grid'});
+  setList = () => this.setState({view:'list'});
+  onSearchChange = (e) => this.setState({search: e.target.value});
+
+  toggleStar = (id) => this.setState(s => ({files: s.files.map(f => f.id===id ? {...f, starred: !f.starred} : f)}));
+
+  openShare = (item) => this.setState({shareItem: item, sharePerm:'view', copyFeedback:false});
+  closeShare = () => this.setState({shareItem:null});
+  setPermView = () => this.setState({sharePerm:'view'});
+  setPermEdit = () => this.setState({sharePerm:'edit'});
+  copyLink = () => {
+    const link = 'https://parcel.app/s/' + (this.state.shareItem ? this.state.shareItem.id : '');
+    if (navigator.clipboard) navigator.clipboard.writeText(link).catch(()=>{});
+    this.setState({copyFeedback:true});
+    setTimeout(()=> this.setState({copyFeedback:false}), 1500);
+  };
+
+  download = (item) => this.showToast('Downloading "' + item.name + '"…');
+
+  stop = (e) => e.stopPropagation();
+
+  onDragOver = (e) => { e.preventDefault(); this.setState({dragOver:true}); };
+  onDragLeave = (e) => { e.preventDefault(); this.setState({dragOver:false}); };
+
+  onDrop = (e) => {
+    e.preventDefault();
+    const dtFiles = Array.from((e.dataTransfer && e.dataTransfer.files) || []);
+    const incoming = dtFiles.length ? dtFiles.map(f=>({name:f.name, size:f.size||500000})) : [{name:'New File.pdf', size:500000}];
+    this.addUploads(incoming);
+    this.setState({dragOver:false});
+  };
+
+  triggerUpload = () => {
+    const names = ['Scan.pdf','Photo.jpg','Draft.docx','Report.xlsx'];
+    const pick = names[Math.floor(Math.random()*names.length)];
+    this.addUploads([{name: pick, size: 300000 + Math.floor(Math.random()*2000000)}]);
+  };
+
+  addUploads(list){
+    const folderId = this.state.section === 'folder' ? this.state.activeFolder : null;
+    let nid = this.state.nextId;
+    const newFiles = list.map(f => ({
+      id: 'f' + (nid++), name: f.name, size: f.size, folderId, starred:false,
+      uploading:true, progress:0, ts: Date.now()
+    }));
+    this.setState(s => ({files: [...newFiles, ...s.files], nextId: nid}));
+    this._timers = this._timers || [];
+    newFiles.forEach(nf => {
+      const iv = setInterval(() => {
+        this.setState(s => {
+          const files = s.files.map(x => x.id===nf.id ? {...x, progress: Math.min(100, x.progress + 20)} : x);
+          const done = files.find(x=>x.id===nf.id).progress >= 100;
+          return {files: done ? files.map(x=> x.id===nf.id ? {...x, uploading:false} : x) : files};
+        });
+        const cur = this.state.files.find(x=>x.id===nf.id);
+        if (!cur || !cur.uploading) clearInterval(iv);
+      }, 220);
+      this._timers.push(iv);
+    });
+  }
+
+  renderVals() {
+    const s = this.state;
+    const search = s.search.trim().toLowerCase();
+    const self = this;
+
+    const countInFolder = (fid) => s.files.filter(f => f.folderId===fid).length;
+
+    const sidebarFolders = FOLDERS.map(f => ({
+      id: f.id, name: f.name, count: countInFolder(f.id),
+      bg: (s.section==='folder' && s.activeFolder===f.id) ? 'var(--color-accent-100)' : 'transparent',
+      fg: (s.section==='folder' && s.activeFolder===f.id) ? 'var(--color-accent-700)' : 'var(--color-text)',
+      select: () => self.openFolder(f.id)
+    }));
+
+    const navBg = {
+      all: s.section==='all' ? 'var(--color-accent-100)' : 'transparent',
+      recent: s.section==='recent' ? 'var(--color-accent-100)' : 'transparent',
+      starred: s.section==='starred' ? 'var(--color-accent-100)' : 'transparent'
+    };
+    const navFg = {
+      all: s.section==='all' ? 'var(--color-accent-700)' : 'var(--color-text)',
+      recent: s.section==='recent' ? 'var(--color-accent-700)' : 'var(--color-text)',
+      starred: s.section==='starred' ? 'var(--color-accent-700)' : 'var(--color-text)'
+    };
+
+    let rawFiles;
+    let headerTitle;
+    let folderPseudoItems = [];
+
+    if (s.section === 'all') {
+      headerTitle = 'All Files';
+      rawFiles = s.files.filter(f => f.folderId === null);
+      folderPseudoItems = FOLDERS.filter(f => !search || f.name.toLowerCase().includes(search)).map(f => ({
+        kind: 'folder', isFolder:true, isFile:false, id: f.id, name: f.name, count: countInFolder(f.id),
+        kindLabel: 'Folder', sizeOrCount: countInFolder(f.id) + ' items', modified: '—', rowCursor:'pointer',
+        open: () => self.openFolder(f.id), rowClick: () => self.openFolder(f.id),
+        share: () => self.openShare({id:f.id, name:f.name})
+      }));
+    } else if (s.section === 'recent') {
+      headerTitle = 'Recent';
+      rawFiles = [...s.files].sort((a,b)=>b.ts-a.ts).slice(0,10);
+    } else if (s.section === 'starred') {
+      headerTitle = 'Starred';
+      rawFiles = s.files.filter(f => f.starred);
+    } else {
+      const folder = FOLDERS.find(f=>f.id===s.activeFolder);
+      headerTitle = folder ? folder.name : 'Folder';
+      rawFiles = s.files.filter(f => f.folderId === s.activeFolder);
+    }
+
+    if (search) rawFiles = rawFiles.filter(f => f.name.toLowerCase().includes(search));
+
+    const fileItems = rawFiles.map(f => ({
+      kind:'file', isFolder:false, isFile:true, id: f.id, name: f.name,
+      ext: self.ext(f.name), size: self.fmtSize(f.size), modified: self.fmtDate(f.ts),
+      kindLabel: self.ext(f.name), sizeOrCount: self.fmtSize(f.size), rowCursor:'default',
+      starred: f.starred, notStarred: !f.starred,
+      uploading: f.uploading, notUploading: !f.uploading, progress: f.progress, progressPct: f.progress + '%',
+      toggleStar: () => self.toggleStar(f.id),
+      share: () => self.openShare(f),
+      download: () => self.download(f),
+      rowClick: () => {}
+    }));
+
+    const displayItems = [...folderPseudoItems, ...fileItems];
+
+    const shareItem = s.shareItem;
+    const shareLink = shareItem ? 'https://parcel.app/s/' + shareItem.id : '';
+
+    const darkVars = s.darkMode
+      ? '--color-bg:#1c1b1b;--color-surface:#262424;--color-text:#f3f2f2;--color-divider:color-mix(in srgb, #f3f2f2 35%, transparent);--color-neutral-100:#2d2b2b;--color-neutral-200:#3a3737;--color-neutral-300:#474343;--color-accent-100:#3a1712;--color-accent-700:#ffb3a3;'
+      : '';
+    const rootStyle = darkVars + 'height:100vh;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);overflow:hidden;font-family:var(--font-body);transition:background .15s,color .15s';
+
+    return {
+      rootStyle,
+      darkMode: s.darkMode,
+      notDarkMode: !s.darkMode,
+      toggleDarkMode: this.toggleDarkMode,
+      search: s.search,
+      onSearchChange: this.onSearchChange,
+      triggerUpload: this.triggerUpload,
+      navBg, navFg, sidebarFolders,
+      selectAll: this.selectAll, selectRecent: this.selectRecent, selectStarred: this.selectStarred,
+      headerTitle,
+      isGrid: s.view==='grid', isList: s.view==='list',
+      setGrid: this.setGrid, setList: this.setList,
+      showGrid: s.view==='grid' && displayItems.length>0,
+      showList: s.view==='list' && displayItems.length>0,
+      isEmpty: displayItems.length===0,
+      displayItems,
+      dragOver: s.dragOver,
+      onDragOver: this.onDragOver, onDragLeave: this.onDragLeave, onDrop: this.onDrop,
+      toast: s.toast,
+      shareItem,
+      shareLink,
+      copyLabel: s.copyFeedback ? 'Copied!' : 'Copy link',
+      copyLink: this.copyLink,
+      closeShare: this.closeShare,
+      permIsView: s.sharePerm==='view', permIsEdit: s.sharePerm==='edit',
+      setPermView: this.setPermView, setPermEdit: this.setPermEdit,
+      stop: this.stop
+    };
+  }
+}
+</script>
+</body>
+</html>

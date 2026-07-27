@@ -7,69 +7,108 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
   </head>
   <body>
-    <main class="shell">
-      <header>
-        <div class="topline"><a class="brand" href="{{ url_for('index') }}">MyTransfer</a>{% if dashboard_protected %}<form class="logout" action="{{ url_for('logout') }}" method="post"><button type="submit">Log out</button></form>{% endif %}</div>
-        <p>Private file links, served from your computer.</p>
-      </header>
-
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-          <div class="notice {{ category }}">{{ message }}</div>
-        {% endfor %}
-      {% endwith %}
-
-      <section class="card upload-card">
-        <h1>Share a file</h1>
-        <form action="{{ url_for('create_share') }}" method="post" enctype="multipart/form-data">
-          <label class="file-picker">
-            <input name="file" type="file" required>
-            <span>Choose a file</span>
-            <small>Up to {{ max_file_size|size }}</small>
-          </label>
-          <label class="expiry">Link expires
-            <select name="expires">
-              <option value="3d">In 3 days</option>
-              <option value="7d" selected>In 7 days</option>
-            </select>
-          </label>
-          <button type="submit">Create secure link</button>
-        </form>
-      </section>
-
-      <section class="shares">
-        <div class="section-title"><h2>Your shares</h2><span>{{ shares|length }} total</span></div>
-        {% if shares %}
-          <div class="share-list">
-            {% for share in shares %}
-              <article class="share {% if share.is_expired %}expired{% endif %}">
-                <div class="file-details">
-                  <h3>{{ share.original_name }}</h3>
-                  <p>{{ share.size|size }} · {{ share.downloads }} download{{ '' if share.downloads == 1 else 's' }} · Expires {{ share.expires_at|datetime }}</p>
-                </div>
-                <div class="share-actions">
-                  {% if not share.is_expired %}
-                    <div class="link-row">
-                      <input aria-label="Share link for {{ share.original_name }}" readonly value="{{ share.link }}">
-                      <button class="copy" type="button" data-link="{{ share.link }}">Copy</button>
-                    </div>
-                  {% else %}
-                    <span class="expired-label">Expired</span>
-                  {% endif %}
-                  <form action="{{ url_for('revoke_share', share_id=share.id) }}" method="post" onsubmit="return confirm('Revoke this link and delete its stored file?');">
-                    <button class="revoke" type="submit">Revoke</button>
-                  </form>
-                </div>
-              </article>
-            {% endfor %}
-          </div>
-        {% else %}
-          <div class="empty">No files are being shared yet.</div>
+    <div class="app-shell">
+      <nav class="nav">
+        <a class="nav-brand" href="{{ url_for('index') }}">MyTransfer</a>
+        <label class="search-box" aria-label="Search shares">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input id="search" type="search" placeholder="Search shared files">
+        </label>
+        {% if dashboard_protected %}
+          <form class="logout" action="{{ url_for('logout') }}" method="post"><button class="btn btn-secondary" type="submit">Log out</button></form>
         {% endif %}
-      </section>
-    </main>
+      </nav>
+
+      <div class="workspace">
+        <aside class="sidebar">
+          <div class="sidebar-nav">
+            <button class="side-link active" data-filter="all"><span class="side-icon">▦</span>All shares <span class="side-count">{{ shares|length }}</span></button>
+            <button class="side-link" data-filter="active"><span class="side-icon">◷</span>Active</button>
+            <button class="side-link" data-filter="expired"><span class="side-icon">◌</span>Expired</button>
+          </div>
+          <div class="sidebar-bottom">
+            <p class="eyebrow">Storage</p>
+            <div class="storage-label"><span>Local files</span><span>{{ shares|length }} share{{ '' if shares|length == 1 else 's' }}</span></div>
+            <div class="storage-bar"><span></span></div>
+            <p class="muted-note">Files are served directly from this computer.</p>
+          </div>
+        </aside>
+
+        <main class="content">
+          <section class="upload-panel">
+            <div>
+              <p class="eyebrow accent">PRIVATE FILE DELIVERY</p>
+              <h1>Share a file.</h1>
+              <p class="lede">Create a secure download link with a 3-day or 7-day expiry.</p>
+            </div>
+            <form class="upload-form" action="{{ url_for('create_share') }}" method="post" enctype="multipart/form-data">
+              <label class="file-input">
+                <input name="file" type="file" required>
+                <span class="file-input-title">Choose a file</span>
+                <span class="file-input-subtitle">Click to browse your computer</span>
+              </label>
+              <label class="expiry-field">Expires
+                <select name="expires">
+                  <option value="3d">After 3 days</option>
+                  <option value="7d" selected>After 7 days</option>
+                </select>
+              </label>
+              <button class="btn btn-primary" type="submit"><span>+</span>Create link</button>
+            </form>
+          </section>
+
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}<div class="notice {{ category }}">{{ message }}</div>{% endfor %}
+          {% endwith %}
+
+          <div class="content-heading">
+            <div><p class="eyebrow">YOUR LIBRARY</p><h2>All shares</h2></div>
+            <div class="view-toggle"><button class="view-button active" type="button" data-view="grid">▦ Grid</button><button class="view-button" type="button" data-view="list">☷ List</button></div>
+          </div>
+
+          {% if shares %}
+            <div class="share-grid" id="share-grid">
+              {% for share in shares %}
+                <article class="share-card {% if share.is_expired %}expired{% endif %}" data-status="{{ 'expired' if share.is_expired else 'active' }}" data-name="{{ share.original_name|lower }}">
+                  <div class="card-top"><div class="file-badge">{{ share.original_name.rsplit('.', 1)[-1][:4]|upper if '.' in share.original_name else 'FILE' }}</div><span class="card-menu">•••</span></div>
+                  <h3 title="{{ share.original_name }}">{{ share.original_name }}</h3>
+                  <p class="card-meta">{{ share.size|size }} · {{ share.downloads }} download{{ '' if share.downloads == 1 else 's' }}</p>
+                  <div class="expiry-row"><span class="status-dot {% if share.is_expired %}is-expired{% endif %}"></span><span>{% if share.is_expired %}Expired{% else %}Expires {{ share.expires_at|datetime }}{% endif %}</span></div>
+                  {% if not share.is_expired %}
+                    <div class="link-row"><input readonly value="{{ share.link }}" aria-label="Link for {{ share.original_name }}"><button class="btn btn-secondary copy" type="button" data-link="{{ share.link }}">Copy</button></div>
+                  {% endif %}
+                  <form class="card-actions" action="{{ url_for('revoke_share', share_id=share.id) }}" method="post" onsubmit="return confirm('Revoke this link and delete its stored file?');"><button class="btn btn-ghost" type="submit">Revoke share</button></form>
+                </article>
+              {% endfor %}
+            </div>
+            <div class="no-results" id="no-results" hidden>No shares match your search.</div>
+          {% else %}
+            <div class="empty-state"><div class="empty-icon">□</div><h3>No shares yet</h3><p>Choose a file above to create your first download link.</p></div>
+          {% endif %}
+        </main>
+      </div>
+    </div>
     <script>
-      document.querySelectorAll('.copy').forEach((button) => button.addEventListener('click', async () => {
+      const cards = [...document.querySelectorAll('.share-card')];
+      const noResults = document.querySelector('#no-results');
+      let filter = 'all';
+      function updateCards() {
+        const query = (document.querySelector('#search')?.value || '').trim().toLowerCase();
+        let visible = 0;
+        cards.forEach(card => {
+          const match = (!query || card.dataset.name.includes(query)) && (filter === 'all' || card.dataset.status === filter);
+          card.hidden = !match;
+          if (match) visible++;
+        });
+        if (noResults) noResults.hidden = visible !== 0;
+      }
+      document.querySelector('#search')?.addEventListener('input', updateCards);
+      document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {
+        filter = button.dataset.filter;
+        document.querySelectorAll('[data-filter]').forEach(item => item.classList.toggle('active', item === button));
+        updateCards();
+      }));
+      document.querySelectorAll('.copy').forEach(button => button.addEventListener('click', async () => {
         await navigator.clipboard.writeText(button.dataset.link);
         button.textContent = 'Copied';
         setTimeout(() => { button.textContent = 'Copy'; }, 1600);

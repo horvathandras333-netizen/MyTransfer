@@ -109,7 +109,25 @@ class MyTransferGUI:
 
         root.title("MyTransfer")
         root.minsize(760, 500)
+        root.configure(bg="#f3f2f2")
         root.protocol("WM_DELETE_WINDOW", self.close)
+
+        style = ttk.Style(root)
+        style.theme_use("clam")
+        style.configure("TFrame", background="#f3f2f2")
+        style.configure("App.TFrame", background="#f3f2f2")
+        style.configure("TLabel", background="#f3f2f2", foreground="#201e1d", font=("Segoe UI", 10))
+        style.configure("Title.TLabel", background="#f3f2f2", foreground="#201e1d", font=("Segoe UI", 20, "bold"))
+        style.configure("Muted.TLabel", background="#f3f2f2", foreground="#706c6b")
+        style.configure("TLabelframe", background="#f3f2f2", foreground="#201e1d", bordercolor="#8a8583")
+        style.configure("TLabelframe.Label", background="#f3f2f2", foreground="#ec3013", font=("Segoe UI", 10, "bold"))
+        style.configure("TButton", padding=(11, 7), background="#f3f2f2", foreground="#201e1d", bordercolor="#8a8583", font=("Segoe UI", 9, "bold"))
+        style.map("TButton", background=[("active", "#eae9e9")])
+        style.configure("Primary.TButton", padding=(13, 7), background="#ec3013", foreground="#ffffff", bordercolor="#ec3013")
+        style.map("Primary.TButton", background=[("active", "#ae1800")])
+        style.configure("Treeview", background="#eae9e9", fieldbackground="#eae9e9", foreground="#201e1d", rowheight=31, borderwidth=0)
+        style.configure("Treeview.Heading", background="#f3f2f2", foreground="#706c6b", font=("Segoe UI", 9, "bold"), relief="flat")
+        style.map("Treeview", background=[("selected", "#fff2ef")], foreground=[("selected", "#ae1800")])
 
         container = ttk.Frame(root, padding=18)
         container.grid(sticky="nsew")
@@ -118,8 +136,8 @@ class MyTransferGUI:
         container.columnconfigure(1, weight=1)
         container.rowconfigure(6, weight=1)
 
-        ttk.Label(container, text="MyTransfer", font=("Segoe UI", 18, "bold")).grid(row=0, column=0, columnspan=3, sticky="w")
-        ttk.Label(container, text="Choose a file and create a public download link.").grid(row=1, column=0, columnspan=3, sticky="w", pady=(0, 14))
+        ttk.Label(container, text="MyTransfer", style="Title.TLabel").grid(row=0, column=0, columnspan=3, sticky="w")
+        ttk.Label(container, text="Choose a file and create a public download link.", style="Muted.TLabel").grid(row=1, column=0, columnspan=3, sticky="w", pady=(0, 14))
 
         ttk.Label(container, text="File").grid(row=2, column=0, sticky="w", padx=(0, 8))
         ttk.Entry(container, textvariable=self.file_path, state="readonly").grid(row=2, column=1, sticky="ew")
@@ -130,11 +148,11 @@ class MyTransferGUI:
         ttk.Label(container, text="Expires").grid(row=3, column=0, sticky="w")
         ttk.Radiobutton(expiry_row, text="After 3 days", variable=self.expiry, value="3d").grid(row=0, column=0, padx=(0, 15))
         ttk.Radiobutton(expiry_row, text="After 7 days", variable=self.expiry, value="7d").grid(row=0, column=1)
-        ttk.Button(container, text="Create link", command=self.create_share).grid(row=3, column=2, sticky="e")
+        ttk.Button(container, text="Create link", command=self.create_share, style="Primary.TButton").grid(row=3, column=2, sticky="e")
 
         ttk.Label(container, text="Public address").grid(row=4, column=0, sticky="w", padx=(0, 8))
         ttk.Entry(container, textvariable=self.public_url, state="readonly").grid(row=4, column=1, columnspan=2, sticky="ew")
-        ttk.Label(container, text="This temporary address stays active while MyTransfer is open.", foreground="#555555").grid(row=5, column=0, columnspan=3, sticky="w")
+        ttk.Label(container, text="This temporary address stays active while MyTransfer is open.", style="Muted.TLabel").grid(row=5, column=0, columnspan=3, sticky="w")
 
         shares_frame = ttk.LabelFrame(container, text="Active shares", padding=10)
         shares_frame.grid(row=6, column=0, columnspan=3, sticky="nsew", pady=(14, 0))
